@@ -531,6 +531,15 @@ void  interpretCommandString(String readString){
         Serial.println("Moving to upper left");
         G1("G00 X-10 Y10 ");                            //Move to upper left
                                                         //Find stall point
+        float RPM;
+        int   pwmVoltage;
+        int upperBound = 255; //the whole range is valid
+        int lowerBound =   0;
+        findStallPoint(lowerBound, upperBound, &pwmVoltage, &RPM);
+        upperBound =      0; //the whole range is valid
+        lowerBound =   -255;
+    
+    findStallPoint(lowerBound, upperBound, &stallPoint, &motorSpeed);
         
         Serial.println("Moving to lower right");
         G1("G00 X10 Y-10 ");                            //Move to lower right
