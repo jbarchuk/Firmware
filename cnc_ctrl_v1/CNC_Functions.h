@@ -519,6 +519,8 @@ void  interpretCommandString(String readString){
     
     if(readString.substring(0, 3) == "B01"){
         
+        G1("G00 X0 Y0 ");
+        
         leftAxis.computeMotorResponse();
         rightAxis.computeMotorResponse();
         

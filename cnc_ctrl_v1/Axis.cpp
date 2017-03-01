@@ -284,24 +284,15 @@ void   Axis::printBoost(){
     _disableAxisForTesting = false;
 }
 
-void   Axis::computeMotorResponse(){
+void   Axis::findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, float* RPM){
+    /*
     
-    //remove whatever transform is applied
-    _motor.setSegment(0 , 1, 0, 0, 0);
-    _motor.setSegment(1 , 1, 0, 0, 0);
-    _motor.setSegment(2 , 1, 0, 0, 0);
-    _motor.setSegment(3 , 1, 0, 0, 0);
+    Takes an upper and lower bound, and finds the point at which the motor stalls between the two. If 
+    the motor does not stall for the given conditions or never rotates, the boundary is returned.
     
-    //In the positive direction
-    //-----------------------------------------------------------------------------------
+    Both the applied voltage (0-255) and the RPM at that voltage are returned.
     
-    float scale = 255/measureMotorSpeed(255); //Y3*scale = 255 -> scale = 255/Y3
-    
-    int stallPoint;
-    float motorSpeed;
-    
-    int upperBound = 255; //the whole range is valid
-    int lowerBound =   0;
+    */
     
     while (true){ //until a value is found
         Serial.print("Testing: ");
@@ -322,8 +313,28 @@ void   Axis::computeMotorResponse(){
             break;                                              //exit loop
         }
     }
+}
+
+void   Axis::computeMotorResponse(){
     
-    stallPoint = upperBound;
+    //remove whatever transform is applied
+    _motor.setSegment(0 , 1, 0, 0, 0);
+    _motor.setSegment(1 , 1, 0, 0, 0);
+    _motor.setSegment(2 , 1, 0, 0, 0);
+    _motor.setSegment(3 , 1, 0, 0, 0);
+    
+    //In the positive direction
+    //-----------------------------------------------------------------------------------
+    
+    float scale = 255/measureMotorSpeed(255); //Y3*scale = 255 -> scale = 255/Y3
+    
+    int stallPoint;
+    float motorSpeed;
+    
+    int upperBound = 255; //the whole range is valid
+    int lowerBound =   0;
+    
+    findStallPoint(lowerBound, upperBound, &stallPoint, &motorSpeed);
     
     Serial.print("decided on final value of: ");
     Serial.println(stallPoint);

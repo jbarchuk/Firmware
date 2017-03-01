@@ -44,6 +44,7 @@
             void   printBoost();
             float  measureMotorSpeed(int speed);
             void   computeMotorResponse();
+            void   findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, float* RPM);
             
         private:
             int        _PWMread(int pin);
