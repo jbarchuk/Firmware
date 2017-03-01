@@ -294,8 +294,6 @@ void   Axis::findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, flo
     
     */
     
-    Serial.println("begin finding stall point");
-    
     float motorSpeed;
     
     while (true){ //until a value is found

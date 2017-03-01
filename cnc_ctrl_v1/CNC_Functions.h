@@ -519,10 +519,22 @@ void  interpretCommandString(String readString){
     
     if(readString.substring(0, 3) == "B01"){
         
-        G1("G00 X0 Y0 ");
+        Serial.println("Moving to center");
+        G1("G00 X0 Y0 ");                               //Go to the center
         
-        leftAxis.computeMotorResponse();
-        rightAxis.computeMotorResponse();
+        leftAxis.computeMotorResponse();                //Compute motor response curves for both motors
+        //rightAxis.computeMotorResponse();
+        
+        setInchesToMillimetersConversion(INCHES);       //Switch to units INCHES
+        
+        
+        Serial.println("Moving to upper left");
+        G1("G00 X-10 Y10 ");                            //Move to upper left
+                                                        //Find stall point
+        
+        Serial.println("Moving to lower right");
+        G1("G00 X10 Y-10 ");                            //Move to lower right
+                                                        //Find stall point
         
         readString = "";
         Serial.println("gready");
