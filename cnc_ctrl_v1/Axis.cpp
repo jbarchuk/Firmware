@@ -305,11 +305,21 @@ void   Axis::findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, flo
         motorSpeed = measureMotorSpeed((upperBound + lowerBound)/2);
         
         if (motorSpeed == 0){                               //if the motor stalled
-            lowerBound = (upperBound + lowerBound)/2;           //shift lower bound to be the guess
+            if((upperBound + lowerBound)/2 > 0){                 //If the motor is moving in the pos direction
+                lowerBound = (upperBound + lowerBound)/2;           //shift lower bound to be the guess
+            }
+            else{                                                //If we're moving in the neg direction
+                upperBound = (upperBound + lowerBound)/2;           //shift lower bound to be the guess
+            }
             Serial.println("- stall");
         }
         else{                                               //if the motor didn't stall
-            upperBound = (upperBound + lowerBound)/2;           //shift upper bound to be the guess
+            if((upperBound + lowerBound)/2 > 0){                 //If the motor is moving in the positive direction
+                upperBound = (upperBound + lowerBound)/2;           //shift upper bound to be the guess
+            }
+            else{                                                //We're moving in the negative direction
+                lowerBound = (upperBound + lowerBound)/2;           //shift upper bound to be the guess
+            }
             Serial.println("- good");
         }
         
@@ -383,27 +393,7 @@ void   Axis::computeMotorResponse(){
     upperBound =      0; //the whole range is valid
     lowerBound =   -255;
     
-    while (true){ //until a value is found
-        
-        Serial.print("Testing: ");
-        Serial.println((upperBound + lowerBound)/2);
-        
-        motorSpeed = measureMotorSpeed((upperBound + lowerBound)/2);
-        if (motorSpeed == 0){                               //if the motor stalled
-            upperBound = (upperBound + lowerBound)/2;           //shift lower bound to be the guess
-            Serial.println("-stall");
-        }
-        else{                                               //if the motor didn't stall
-            lowerBound = (upperBound + lowerBound)/2;           //shift upper bound to be the guess
-            Serial.println("-good");
-        }
-        
-        if (upperBound - lowerBound <= 1){                  //when we've converged on the first point which doesn't stall
-            break;                                              //exit loop
-        }
-    }
-    
-    stallPoint = lowerBound;
+    findStallPoint(lowerBound, upperBound, &stallPoint, &motorSpeed);
     
     Serial.print("decided on a final value of: ");
     Serial.println(stallPoint);
