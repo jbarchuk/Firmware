@@ -294,6 +294,10 @@ void   Axis::findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, flo
     
     */
     
+    Serial.println("begin finding stall point");
+    
+    float motorSpeed;
+    
     while (true){ //until a value is found
         Serial.print("Testing: ");
         Serial.println((upperBound + lowerBound)/2);
@@ -313,6 +317,15 @@ void   Axis::findStallPoint(int lowerBound, int upperBound, int* cmdVoltage, flo
             break;                                              //exit loop
         }
     }
+    
+    if(lowerBound < 0){ //pick the last good value, not the one which stalled the motor
+        *cmdVoltage = lowerBound;
+    }
+    else{
+        *cmdVoltage = upperBound;
+    }
+    
+    *RPM        = motorSpeed;
 }
 
 void   Axis::computeMotorResponse(){
