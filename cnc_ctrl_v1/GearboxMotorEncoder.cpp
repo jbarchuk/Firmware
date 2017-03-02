@@ -83,9 +83,9 @@ void         GearboxMotorEncoder::computePID(){
                 float errorTerm = avgSpeed - _speedSetpoint;
                 int pwmCmd = _kP*errorTerm;//should be in the range 0-255
                 _motor.write(pwmCmd);
-                Serial.println(avgSpeed);
-                //Serial.print(" ");
-                //Serial.println(_speedSetpoint);
+                Serial.print(avgSpeed);
+                Serial.print(" ");
+                Serial.println(tempSpeed);
                 //Serial.print(" ");
                 //Serial.println(pwmCmd);
                 
