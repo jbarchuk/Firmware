@@ -58,6 +58,7 @@
             bool       _disableAxisForTesting = false;
             float      _speedSetpoint = 0;
             int        _kP = 25;
+            PID        _pidController;
             
     };
 
