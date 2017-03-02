@@ -46,7 +46,7 @@ _motorModule(pwmPin, directionPin1, directionPin2, encoderPin1, encoderPin2, eep
 
 void   Axis::initializePID(){
     _pidController.SetMode(AUTOMATIC);
-    _pidController.SetOutputLimits(-255, 255);
+    _pidController.SetOutputLimits(-20, 20);
 }
 
 int    Axis::write(float targetPosition){
@@ -103,6 +103,7 @@ void   Axis::computePID(){
     _pidController.Compute();
     
     _motorModule.write(_pidOutput);
+    
     if(_axisName == "Right-axis"){
         _motorModule.computePID();
     }

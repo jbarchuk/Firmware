@@ -49,15 +49,15 @@ void         GearboxMotorEncoder::writeEncoder(long newEncoderValue){
 //            Address motor module functions
 
 void         GearboxMotorEncoder::write(int speed){
-    //_motor.write(speed);
+    _speedSetpoint = speed;
 }
 
 void         GearboxMotorEncoder::attach(){
-    _motor.attach();
+    //_motor.attach();
 }
 
 void         GearboxMotorEncoder::detach(){
-    if (_motor.attached()){
+    if (false){
         EEPROM.write(_eepromAdr, EEPROMVALIDDATA);      //Mark that there is data to be written
         //_writeFloat (_eepromAdr+SIZEOFFLOAT, read());   //Write the axis position (this should happen at the axis level)
         
@@ -65,7 +65,7 @@ void         GearboxMotorEncoder::detach(){
         
     }
     
-    _motor.detach();
+    //_motor.detach();
 }
 
 void         GearboxMotorEncoder::computePID(){
@@ -82,12 +82,12 @@ void         GearboxMotorEncoder::computePID(){
                 
                 float errorTerm = avgSpeed - _speedSetpoint;
                 int pwmCmd = _kP*errorTerm;//should be in the range 0-255
-                _motor.write(pwmCmd);
-                Serial.println(avgSpeed);
-                //Serial.print(" ");
-                //Serial.println(_speedSetpoint);
-                //Serial.print(" ");
-                //Serial.println(pwmCmd);
+                _motor.write1(pwmCmd);
+                Serial.print(avgSpeed);
+                Serial.print(" ");
+                Serial.print(_speedSetpoint);
+                Serial.print(" ");
+                Serial.println(pwmCmd);
                 
                 avg1 = avg2;
                 avg2 = avg3;
@@ -344,87 +344,11 @@ float        GearboxMotorEncoder::_speedSinceLastCall(){
     return RPM;
 }
 
-float        GearboxMotorEncoder::measureMotorSpeed(int speed){
-    /*
-    Returns the motors speed in RPM at a given input value
-    */
-    
-    int sign = speed/abs(speed);
-    
-    _disableAxisForTesting = true;
-    attach();
-    
-    int numberOfStepsToTest = 2000;
-    int timeOutMS           = 30*1000; //30 seconds
-    bool stall              = false;
-    
-    //run the motor for numberOfStepsToTest steps positive and record the time taken
-    
-    
-    long originalEncoderPos  = _encoder.read();
-    long startTime = millis();
-    
-    //until the motor has moved the target distance
-    while (abs(originalEncoderPos - _encoder.read()) < numberOfStepsToTest){
-        //establish baseline for speed measurement
-        _speedSinceLastCall();
-        
-        //command motor to spin at speed
-        _motor.write(speed);
-        
-        //wait
-        delay(200);
-        
-        //print to prevent connection timeout
-        Serial.println("pt(0, 0, 0)mm");
-        
-        //check to see if motor is moving
-        if (_speedSinceLastCall() < .01){
-            stall = true;
-            break;
-        }
-    }
-    int posTime = millis() - startTime;
-    
-    //rotations = number of steps taken / steps per rotation
-    float rotations = (originalEncoderPos - _encoder.read())/NUMBER_OF_ENCODER_STEPS;
-    //minutes = time elapsed in ms * 1000ms/s *60 seconds per minute
-    float minutes   = posTime/(1000.0*60.0);
-    
-    //RPM is rotations per minute.
-    float RPM = rotations/minutes;
-    
-    if (stall){
-        RPM = 0;
-    }
-    
-    //move back to start point
-    _disableAxisForTesting = false;
-    for (long startTime = millis(); millis() - startTime < 2000; millis()){
-        _motor.write(_encoder.read() - originalEncoderPos);
-        delay(50);
-        //print to prevent connection timeout
-        Serial.println("pt(0, 0, 0)mm");
-    }
-    
-    return RPM;
-}
-
 void         GearboxMotorEncoder::testPID(int speed){
-                delay(500);
-                Serial.println("Test PID");
-                _motor.attach();
-                _speedSetpoint = 8.0;
-                int i = 0;
-                while(true){
-                    delay(10);
-                    if(i > 1000){
-                        _speedSetpoint = 14;
-                    }
-                    if(i > 2000){
-                        _speedSetpoint = -8;
-                        i = 0;
-                    }
-                    i++;
-                }
+    static int i;
+    i++;
+    if(i == 100){
+        Serial.println(_speedSetpoint);
+        i = 0;
+    }
 }

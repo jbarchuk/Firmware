@@ -37,7 +37,7 @@
             void attach();
             int  setupMotor(int pwmPin, int pin1, int pin2);
             void detach();
-            void write(int speed);
+            void write1(int speed);
             int  attached();
             int  _convolve(int input);
             void setSegment(int index, float slope, float intercept, int negativeBound, int positiveBound);

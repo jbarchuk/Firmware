@@ -52,20 +52,7 @@ int  Motor::setupMotor(int pwmPin, int pin1, int pin2){
   return 1;
 }
 
-void Motor::attach(){
-    _attachedState = 1;
-}
-
-void Motor::detach(){
-    _attachedState = 0;
-    
-    //stop the motor
-    digitalWrite(_pin1,    HIGH);
-    digitalWrite(_pin2,    LOW) ;
-    digitalWrite(_pwmPin,  LOW);
-}
-
-void Motor::write(int speed){
+void Motor::write1(int speed){
     /*
     Sets motor speed from input. Speed = 0 is stopped, -255 is full reverse, 255 is full ahead.
     */
@@ -102,11 +89,6 @@ void Motor::write(int speed){
         analogWrite(_pwmPin, pwmFrequency);
         
     }
-}
-
-int  Motor::attached(){
-    
-    return _attachedState;
 }
 
 int  Motor::_convolve(int input){
