@@ -103,6 +103,9 @@ void   Axis::computePID(){
     _pidController.Compute();
     
     _motorModule.write(_pidOutput);
+    if(_axisName == "Right-axis"){
+        _motorModule.computePID();
+    }
     
 }
 
@@ -188,5 +191,6 @@ int    Axis::_change(float val){
 }
 
 void   Axis::computeMotorResponse(){
-    _motorModule.computeMotorResponse();
+    //_motorModule.computeMotorResponse();
+    _motorModule.testPID(100);
 }

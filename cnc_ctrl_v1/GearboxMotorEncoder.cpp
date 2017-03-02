@@ -49,7 +49,7 @@ void         GearboxMotorEncoder::writeEncoder(long newEncoderValue){
 //            Address motor module functions
 
 void         GearboxMotorEncoder::write(int speed){
-    _motor.write(speed);
+    //_motor.write(speed);
 }
 
 void         GearboxMotorEncoder::attach(){
@@ -68,6 +68,35 @@ void         GearboxMotorEncoder::detach(){
     _motor.detach();
 }
 
+void         GearboxMotorEncoder::computePID(){
+                static float avg1; //this is a gross way to do this and should be changed
+                static float avg2;
+                static float avg3;
+                static float avg4;
+                static float avg5;
+                static float avg6;
+                static float avg7;
+                
+                float tempSpeed = _speedSinceLastCall();
+                float avgSpeed  = (avg1 + avg2 + avg3 + avg4 + avg5 + avg6 + avg7 + tempSpeed)/8; //the speed since last call function is somewhat noisy because calculating the motor speed 100x/second is pushing the limits on the encoder resolution
+                
+                float errorTerm = avgSpeed - _speedSetpoint;
+                int pwmCmd = _kP*errorTerm;//should be in the range 0-255
+                _motor.write(pwmCmd);
+                Serial.println(avgSpeed);
+                //Serial.print(" ");
+                //Serial.println(_speedSetpoint);
+                //Serial.print(" ");
+                //Serial.println(pwmCmd);
+                
+                avg1 = avg2;
+                avg2 = avg3;
+                avg3 = avg4;
+                avg4 = avg5;
+                avg5 = avg6;
+                avg6 = avg7;
+                avg7 = tempSpeed;
+}
 
 //           Reading and Writing EEPROM
 
@@ -293,26 +322,26 @@ void         GearboxMotorEncoder::computeMotorResponse(){
 }
 
 float        GearboxMotorEncoder::_speedSinceLastCall(){
+    /*
+    Return the average motor speed since the last time the function was called in units of RPM
+    */
+    
     //static variables to persist between calls
-    static long time = millis();
+    static long time = micros();
     static long prevEncoderValue = _encoder.read();
     
     //compute dist moved
-    int elapsedTime = millis() - time;
-    int distMoved   = _encoder.read() - prevEncoderValue;
-    float speed = float(distMoved)/float(elapsedTime);
-    
-    //catch if time is zero
-    if (elapsedTime < 10){
-        speed = 0;
-    }
+    long elapsedTime = micros() - time;                     //units of microseconds 1/60,000,000 of a minute
+    int distMoved   = _encoder.read() - prevEncoderValue;   //units of steps moved of which there are NUMBER_OF_ENCODER_STEPS per rotation
+    int conversionFactor = 7364;//60 million / number of steps per rotation
+    float RPM = ((float)conversionFactor*(float)distMoved)/(float)elapsedTime;
     
     //set values for next call
-    time = millis();
+    time = micros();
     prevEncoderValue = _encoder.read();
     
-    //return the absolute value because speed is not a vector
-    return abs(speed);
+    //return the speed in RPM
+    return RPM;
 }
 
 float        GearboxMotorEncoder::measureMotorSpeed(int speed){
@@ -379,4 +408,23 @@ float        GearboxMotorEncoder::measureMotorSpeed(int speed){
     }
     
     return RPM;
+}
+
+void         GearboxMotorEncoder::testPID(int speed){
+                delay(500);
+                Serial.println("Test PID");
+                _motor.attach();
+                _speedSetpoint = 8.0;
+                int i = 0;
+                while(true){
+                    delay(10);
+                    if(i > 1000){
+                        _speedSetpoint = 14;
+                    }
+                    if(i > 2000){
+                        _speedSetpoint = -8;
+                        i = 0;
+                    }
+                    i++;
+                }
 }

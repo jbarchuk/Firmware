@@ -85,7 +85,7 @@ void  returnPoz(float x, float y, float z){
     
     if (millis() - lastRan > timeout){
         
-        Serial.print("pz(");
+        /*Serial.print("pz(");
         Serial.print(x/_inchesToMMConversion);
         Serial.print(", ");
         Serial.print(y/_inchesToMMConversion);
@@ -98,7 +98,7 @@ void  returnPoz(float x, float y, float z){
         }
         else{
             Serial.println("mm");
-        }
+        }*/
         
         lastRan = millis();
     }
@@ -221,7 +221,7 @@ void  singleAxisMove(Axis* axis, float endPos, float MMPerMin){
         //update position on display
         returnPoz(xTarget, yTarget, zAxis.read());
         
-        //calculate the correct delay between steps to set feedrate
+        //calculate the correct delay between steps to set feed-rate
         delay(calculateDelay(stepSizeMM, MMPerMin));
         
         //increment the number of steps taken
@@ -518,7 +518,7 @@ void  interpretCommandString(String readString){
     
     if(readString.substring(0, 3) == "B01"){
         
-        leftAxis.computeMotorResponse();
+        //leftAxis.computeMotorResponse();
         rightAxis.computeMotorResponse();
         
         //Serial.println("Begin motion testing: ");
