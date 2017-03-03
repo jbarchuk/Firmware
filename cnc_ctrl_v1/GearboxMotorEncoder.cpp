@@ -19,6 +19,17 @@
 #include "Arduino.h"
 #include "GearboxMotorEncoder.h"
 
+ //global variables to persist between calls
+long time;
+long prevEncoderValue;
+float avg1; 
+float avg2;
+float avg3;
+float avg4;
+float avg5;
+float avg6;
+float avg7;
+
 GearboxMotorEncoder::GearboxMotorEncoder(int pwmPin, int directionPin1, int directionPin2, int encoderPin1, int encoderPin2, int eepromAdr)
 :
 _encoder(encoderPin1,encoderPin2)
@@ -69,25 +80,18 @@ void         GearboxMotorEncoder::detach(){
 }
 
 void         GearboxMotorEncoder::computePID(){
-                static float avg1; //this is a gross way to do this and should be changed
-                static float avg2;
-                static float avg3;
-                static float avg4;
-                static float avg5;
-                static float avg6;
-                static float avg7;
                 
                 float tempSpeed = _speedSinceLastCall();
                 float avgSpeed  = (avg1 + avg2 + avg3 + avg4 + avg5 + avg6 + avg7 + tempSpeed)/8; //the speed since last call function is somewhat noisy because calculating the motor speed 100x/second is pushing the limits on the encoder resolution
                 
                 float errorTerm = avgSpeed - _speedSetpoint;
                 int pwmCmd = _kP*errorTerm;//should be in the range 0-255
-                _motor.write1(pwmCmd);
-                Serial.print(avgSpeed);
+                _motor.write1(-1*pwmCmd);
+                /*Serial.print(avgSpeed);
                 Serial.print(" ");
                 Serial.print(_speedSetpoint);
                 Serial.print(" ");
-                Serial.println(pwmCmd);
+                Serial.println(pwmCmd);*/
                 
                 avg1 = avg2;
                 avg2 = avg3;
@@ -325,10 +329,6 @@ float        GearboxMotorEncoder::_speedSinceLastCall(){
     /*
     Return the average motor speed since the last time the function was called in units of RPM
     */
-    
-    //static variables to persist between calls
-    static long time = micros();
-    static long prevEncoderValue = _encoder.read();
     
     //compute dist moved
     long elapsedTime = micros() - time;                     //units of microseconds 1/60,000,000 of a minute

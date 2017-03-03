@@ -104,8 +104,11 @@ void   Axis::computePID(){
     
     _motorModule.write(_pidOutput);
     
+    
+    _motorModule.computePID();
     if(_axisName == "Right-axis"){
-        _motorModule.computePID();
+        
+        //Serial.println(_pidSetpoint - _pidInput);
     }
     
 }
