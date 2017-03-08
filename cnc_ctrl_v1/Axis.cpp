@@ -235,6 +235,13 @@ LinSegment   Axis::_readLinSeg(unsigned int addr){
         linSeg.negativeBound =  _readFloat(addr + 1 + 3*SIZEOFFLOAT);
     }
     
+    if (isnan(linSeg.slope)){  //catch nan values
+        linSeg.slope = 1;
+    }
+    if (isnan(linSeg.intercept)){
+        linSeg.intercept = 0;
+    }
+    
     return linSeg;
 }
 
@@ -252,6 +259,8 @@ void   Axis::_readAllLinSegs(unsigned int addr){
         
         _motor.setSegment(i, linSeg.slope, linSeg.intercept,  linSeg.negativeBound, linSeg.positiveBound);
     }
+    
+    Serial.println("end of read lin segs");
 }
 
 int    Axis::_sign(float val){
