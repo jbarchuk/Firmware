@@ -99,7 +99,7 @@ void GearMotor::write(int speed){
         
         int pwmFrequency = round(speed);
         
-        Serial.println(pwmFrequency);
+        //Serial.println(pwmFrequency);
         
         analogWrite(_pwmPin, pwmFrequency);
         
